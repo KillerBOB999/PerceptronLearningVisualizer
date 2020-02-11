@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29728.190
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PerceptronLearningVisualizer", "PerceptronLearningVisualizer.csproj", "{31DAC578-0943-4FC5-AA7A-A56BB3873880}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{31DAC578-0943-4FC5-AA7A-A56BB3873880}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{31DAC578-0943-4FC5-AA7A-A56BB3873880}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{31DAC578-0943-4FC5-AA7A-A56BB3873880}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{31DAC578-0943-4FC5-AA7A-A56BB3873880}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {41B6D507-48D9-4631-B4F7-368167C5C1E2}
+	EndGlobalSection
+EndGlobal
