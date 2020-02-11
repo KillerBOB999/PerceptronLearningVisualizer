@@ -1,8 +1,8 @@
 ﻿// INFORMATION----------------------------------------------------------------------------
 // DEVELOPER:        Anthony Harris
-// GITHUB:           https://github.com/KillerBOB999/LinearRegressionVisualizer
-// DATE:             02 February 2020
-// PURPOSE:          Linear Regression Visualizer tool in C# for CSC736: Machine Learning.
+// GITHUB:           https://github.com/KillerBOB999/PerceptronLearningVisualizer
+// DATE:             11 February 2020
+// PURPOSE:          Perceptron Learning Visualizer tool in C# for CSC736: Machine Learning.
 //----------------------------------------------------------------------------------------
 
 using System;
