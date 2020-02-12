@@ -54,6 +54,7 @@ namespace PerceptronLearningVisualizer
                 bitmap.Dispose();
             }
             points.Clear();
+            WB.Clear();
             button_Reset.Enabled = false;
             using (Graphics graphics = splitContainer1.Panel2.CreateGraphics())
             {
@@ -198,12 +199,11 @@ namespace PerceptronLearningVisualizer
         public int height = 0;  // User determined height of the canvas
 
         public int epoch;       // Simple counter
-        public double bError;   // Accumulated bias error
-        public double wError;   // Accumulated weight error
-        public double MSE;      // Mean Squared Error
+        public int wrong = 0;   // Number of misclassified points
 
         // Generated points where x and y are random and the bool is true if y at x > CalcY(x, true)
         public List<Tuple<double, double, int>> points = new List<Tuple<double, double, int>>();
+        public List<int> mislabels = new List<int>();
 
         public Timer timer;     // Used to auto update and render
         public Bitmap bitmap;   // Buffer for drawing to panel
@@ -300,44 +300,62 @@ namespace PerceptronLearningVisualizer
 
         // HELPER FUNCTIONS
 
-        // Find max x value usable for display
-        public int CalcUpperLimit() 
-        {
-            return Math.Min(
-                Math.Abs((int)((height / 2 - b) / w)), 
-                width / 2
-            );
-        }
-
         // Calculate the Y value from the function
         public double CalcY(double x, bool isGroundTruth)
         {
             if (isGroundTruth) return w * x + b;
             else
             {
-                wCalc = 0;
-                for (int i = 1; i < WB.Count(); ++i)
-                {
-                    wCalc += WB[i];
-                }
                 return wCalc * x + WB[0];
             }
-        }
-
-        // Select from training points to use in epoch
-        public List<Tuple<double, double, int>> SelectPoints() 
-        {
-            List<Tuple<double, double, int>> epochPoints = new List<Tuple<double, double, int>>(points);
-            Random rng = new Random();
-            while (epochPoints.Count() > e) epochPoints.RemoveAt(rng.Next(0, epochPoints.Count() - 1));
-            return epochPoints;
         }
 
         //----------------------------------------------------------------
 
         // UPDATE FUNCTIONS
 
-        // TO DO: ADD STUFF
+        // Activation function. Determines output of neuron.
+        public int activate(double sum)
+        {
+            return sum >= 0 ? 1 : -1;
+        }
+
+        // Feedforward function propogates the inputs throughout the network.
+        public int feedForward(ref int index)
+        {
+            double sum;
+
+            if (index > 0) sum = points[index - 1].Item1 * WB[index];
+            else sum = WB[0];
+
+            return activate(sum);
+        }
+
+        // Train the weights and bias
+        public void train(ref int i)
+        {
+            int output = feedForward(ref i);
+            if (i > 0)
+            {
+                if (points[i - 1].Item3 != output)
+                {
+                    ++wrong;
+                    mislabels.Add(i);
+                    System.Diagnostics.Debug.WriteLine("Misclassified Point:\n\tx = " + points[i - 1].Item1 + "\n\ty = " + points[i - 1].Item2
+                        + "\n\tActual = " + points[i - 1].Item3 + "\n\tCalculated = " + output);
+                    WB[i] += r * (points[i - 1].Item3 - output) * points[i - 1].Item1;
+                }
+            }
+        }
+
+        public void updateW()
+        {
+            wCalc = 0;
+            for (int i = 0; i < points.Count(); ++i)
+            {
+                wCalc += points[i].Item1 * WB[i + 1];
+            }
+        }
 
         //----------------------------------------------------------------
 
@@ -422,16 +440,19 @@ namespace PerceptronLearningVisualizer
             float xConversion = width / 2;
             float yConversion = height / 2;
 
-            foreach (var point in points)
+            Color color;
+
+            for (int i = 0; i < points.Count(); ++i)
             {
-                if (point.Item3 == 1) graphics.FillEllipse(new SolidBrush(Color.Black), 
-                    (float)point.Item1 - radius + xConversion, // X-coord of center
-                    height - (float)point.Item2 - radius - yConversion, // Y-coord of center
+                color = mislabels.Contains(i) ? Color.Red : Color.Black;
+                if (points[i].Item3 == 1) graphics.FillEllipse(new SolidBrush(color), 
+                    (float)points[i].Item1 - radius + xConversion, // X-coord of center
+                    height - (float)points[i].Item2 - radius - yConversion, // Y-coord of center
                     radius * 2, // Width
                     radius * 2);// Height
-                else graphics.DrawEllipse(new Pen(Color.Black),
-                    (float)point.Item1 - radius + xConversion, // X-coord of center
-                    height - (float)point.Item2 - radius - yConversion, // Y-coord of center
+                else graphics.DrawEllipse(new Pen(color),
+                    (float)points[i].Item1 - radius + xConversion, // X-coord of center
+                    height - (float)points[i].Item2 - radius - yConversion, // Y-coord of center
                     radius * 2, // Width
                     radius * 2);// Height
             }
@@ -445,7 +466,8 @@ namespace PerceptronLearningVisualizer
         {
             // Update base data
             ++epoch;
-            List<Tuple<double, double, int>> epochPoints = SelectPoints();
+            wrong = 0;
+            mislabels.Clear();
 
             // Update output of base data
             output_Epoch.Text = epoch.ToString();
@@ -453,11 +475,18 @@ namespace PerceptronLearningVisualizer
                 + " * x + " + Math.Round(WB[0], roundTo).ToString(); 
 
             // Update calculated weight and bias
-            // TO DO: ADD STUFF
+            for (int i = 0; i < WB.Count(); ++i) train(ref i);
+
+            // Update wCalc
+            updateW();
 
             // Update output of the calculated line
             output_NewCalculatedLine.Text = "y = " + Math.Round(wCalc, roundTo).ToString()
                 + " * x + " + Math.Round(WB[0], roundTo).ToString();
+            output_NumMisclassified.Text = wrong.ToString();
+
+            // Check to see if it's converged and stop it if so
+            if (wrong == 0) button_PlayPause.PerformClick();
         }
 
         public void Render()
