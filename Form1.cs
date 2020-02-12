@@ -62,7 +62,7 @@ namespace PerceptronLearningVisualizer
             ChangeInputStates();
             button_PlayPause.Enabled = false;
             button_PlayPause.Text = "Pause Simulation";
-            output_BiasError.Text = output_Epoch.Text = output_MSE.Text = output_NewCalculatedLine.Text = output_OldCalculatedLine.Text = output_WeightError.Text = "N/A";
+            output_NumMisclassified.Text = "N/A";
             button_Run.Enabled = true;
         }
 
@@ -189,8 +189,8 @@ namespace PerceptronLearningVisualizer
 
         public double w = 0;    // SLope of the line (weight)
         public double b = 0;    // Y-intercept of the line (bias)
-        public double wCalc = 0;// Calculated w
-        public double bCalc = 0;// Calculated b
+        public List<double> WB = new List<double>();// Calculated weights and bias
+        public double wCalc = 0;// Calculated weight sum
         public double r = 0;    // Leanrning rate
         public int p = 0;       // Number of points generated
         public int e = 0;       // Number of points to train on per epoch
@@ -203,7 +203,7 @@ namespace PerceptronLearningVisualizer
         public double MSE;      // Mean Squared Error
 
         // Generated points where x and y are random and the bool is true if y at x > CalcY(x, true)
-        public List<Tuple<double, double, bool>> points = new List<Tuple<double, double, bool>>();
+        public List<Tuple<double, double, int>> points = new List<Tuple<double, double, int>>();
 
         public Timer timer;     // Used to auto update and render
         public Bitmap bitmap;   // Buffer for drawing to panel
@@ -252,8 +252,8 @@ namespace PerceptronLearningVisualizer
             r = Convert.ToDouble(input_r.Text);
             p = Convert.ToInt32(input_p.Text);
             e = Convert.ToInt32(input_e.Text);
-            width = Convert.ToInt32(input_width.Text);
-            height = Convert.ToInt32(input_height.Text);
+            width = Convert.ToInt32(label_width.Text);
+            height = Convert.ToInt32(label_height.Text);
         }
 
         private void ChangeInputStates()
@@ -263,8 +263,6 @@ namespace PerceptronLearningVisualizer
             input_p.Enabled = !input_p.Enabled;
             input_r.Enabled = !input_r.Enabled;
             input_e.Enabled = !input_e.Enabled;
-            input_width.Enabled = !input_width.Enabled;
-            input_height.Enabled = !input_height.Enabled;
         }
 
         //----------------------------------------------------------------
@@ -278,18 +276,24 @@ namespace PerceptronLearningVisualizer
             {
                 double generatedX = rng.Next(-width / 2, width / 2);     // Make a x
                 double generatedY = rng.Next(-height / 2, height / 2);   // Make a y
-                points.Add(new Tuple<double, double, bool>(
+                int classification;
+                if (CalcY(generatedX, true) < generatedY) classification = 1;
+                else classification = -1;
+                points.Add(new Tuple<double, double, int>(
                     generatedX, 
                     generatedY, 
-                    CalcY(generatedX, true) < generatedY));
+                    classification));
             }
         }
 
         public void GenerateValues()
         {
             Random rng = new Random();
-            wCalc = rng.NextDouble();
-            bCalc = rng.NextDouble();
+            WB.Add(0); // Initialize the bias to 0
+            foreach (var point in points)
+            {
+                WB.Add(rng.NextDouble());
+            }
         }
 
         //----------------------------------------------------------------
@@ -309,13 +313,21 @@ namespace PerceptronLearningVisualizer
         public double CalcY(double x, bool isGroundTruth)
         {
             if (isGroundTruth) return w * x + b;
-            else return wCalc * x + bCalc;
+            else
+            {
+                wCalc = 0;
+                for (int i = 1; i < WB.Count(); ++i)
+                {
+                    wCalc += WB[i];
+                }
+                return wCalc * x + WB[0];
+            }
         }
 
         // Select from training points to use in epoch
-        public List<Tuple<double, double, bool>> SelectPoints() 
+        public List<Tuple<double, double, int>> SelectPoints() 
         {
-            List<Tuple<double, double, bool>> epochPoints = new List<Tuple<double, double, bool>>(points);
+            List<Tuple<double, double, int>> epochPoints = new List<Tuple<double, double, int>>(points);
             Random rng = new Random();
             while (epochPoints.Count() > e) epochPoints.RemoveAt(rng.Next(0, epochPoints.Count() - 1));
             return epochPoints;
@@ -325,38 +337,7 @@ namespace PerceptronLearningVisualizer
 
         // UPDATE FUNCTIONS
 
-        // Calculate the accumulated error of the calculated bias (bCalc)
-        public double FindBiasError(ref List<Tuple<double, double, bool>> epochPoints)
-        {
-            double error = 0;
-            for (int i = 0; i < e; ++i)
-            {
-                error += epochPoints[i].Item2 - CalcY(epochPoints[i].Item1, false);
-            }
-            return error / e;
-        }
-
-        // Calculate the accumulated error of the calculated weight (wCalc)
-        public double FindWeightError(ref List<Tuple<double, double, bool>> epochPoints)
-        {
-            double error = 0;
-            for (int i = 0; i < e; ++i)
-            {
-                error += (epochPoints[i].Item2 - CalcY(epochPoints[i].Item1, false)) * epochPoints[i].Item1;
-            }
-            return error / e;
-        }
-
-        // Calculate the Mean Square Error
-        public double FindMSE(ref List<Tuple<double, double, bool>> epochPoints)
-        {
-            double error = 0;
-            for (int i = 0; i < e; ++i)
-            {
-                error += Math.Pow(epochPoints[i].Item2 - CalcY(epochPoints[i].Item1, false), 2);
-            }
-            return error / e;
-        }
+        // TO DO: ADD STUFF
 
         //----------------------------------------------------------------
 
@@ -443,7 +424,7 @@ namespace PerceptronLearningVisualizer
 
             foreach (var point in points)
             {
-                if (point.Item3) graphics.FillEllipse(new SolidBrush(Color.Black), 
+                if (point.Item3 == 1) graphics.FillEllipse(new SolidBrush(Color.Black), 
                     (float)point.Item1 - radius + xConversion, // X-coord of center
                     height - (float)point.Item2 - radius - yConversion, // Y-coord of center
                     radius * 2, // Width
@@ -464,26 +445,19 @@ namespace PerceptronLearningVisualizer
         {
             // Update base data
             ++epoch;
-            List<Tuple<double, double, bool>> epochPoints = SelectPoints();
-            bError = FindBiasError(ref epochPoints);
-            wError = FindWeightError(ref epochPoints);
-            MSE = FindMSE(ref epochPoints);
+            List<Tuple<double, double, int>> epochPoints = SelectPoints();
 
             // Update output of base data
             output_Epoch.Text = epoch.ToString();
             output_OldCalculatedLine.Text = "y = " + Math.Round(wCalc, roundTo).ToString()
-                + " * x + " + Math.Round(bCalc, roundTo).ToString();
-            output_BiasError.Text = Math.Round(bError, roundTo).ToString();
-            output_WeightError.Text = Math.Round(wError, roundTo).ToString();
-            output_MSE.Text = Math.Round(MSE, roundTo).ToString();
+                + " * x + " + Math.Round(WB[0], roundTo).ToString(); 
 
             // Update calculated weight and bias
-            bCalc = bCalc + r * bError;
-            wCalc = wCalc + r * wError;
+            // TO DO: ADD STUFF
 
             // Update output of the calculated line
             output_NewCalculatedLine.Text = "y = " + Math.Round(wCalc, roundTo).ToString()
-                + " * x + " + Math.Round(bCalc, roundTo).ToString();
+                + " * x + " + Math.Round(WB[0], roundTo).ToString();
         }
 
         public void Render()
