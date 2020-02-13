@@ -52,11 +52,7 @@
             this.label_width = new System.Windows.Forms.Label();
             this.label_hEquals = new System.Windows.Forms.Label();
             this.label_wEquals = new System.Windows.Forms.Label();
-            this.label_PointsPerEpoch = new System.Windows.Forms.Label();
             this.label_SizeOfCanvas = new System.Windows.Forms.Label();
-            this.panel9 = new System.Windows.Forms.Panel();
-            this.input_e = new System.Windows.Forms.TextBox();
-            this.label_eEquals = new System.Windows.Forms.Label();
             this.label_GeneratedPoints = new System.Windows.Forms.Label();
             this.panel4 = new System.Windows.Forms.Panel();
             this.input_p = new System.Windows.Forms.TextBox();
@@ -81,7 +77,6 @@
             this.container.SuspendLayout();
             this.groupBox_HyperParameters.SuspendLayout();
             this.panel3.SuspendLayout();
-            this.panel9.SuspendLayout();
             this.panel4.SuspendLayout();
             this.panel2.SuspendLayout();
             this.panel1.SuspendLayout();
@@ -114,7 +109,7 @@
             // 
             this.button_PlayPause.Enabled = false;
             this.button_PlayPause.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.button_PlayPause.Location = new System.Drawing.Point(12, 352);
+            this.button_PlayPause.Location = new System.Drawing.Point(12, 315);
             this.button_PlayPause.Name = "button_PlayPause";
             this.button_PlayPause.Size = new System.Drawing.Size(242, 29);
             this.button_PlayPause.TabIndex = 4;
@@ -126,7 +121,7 @@
             // 
             this.button_Reset.Enabled = false;
             this.button_Reset.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.button_Reset.Location = new System.Drawing.Point(12, 387);
+            this.button_Reset.Location = new System.Drawing.Point(12, 350);
             this.button_Reset.Name = "button_Reset";
             this.button_Reset.Size = new System.Drawing.Size(242, 29);
             this.button_Reset.TabIndex = 3;
@@ -137,7 +132,7 @@
             // button_Run
             // 
             this.button_Run.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.button_Run.Location = new System.Drawing.Point(12, 314);
+            this.button_Run.Location = new System.Drawing.Point(12, 277);
             this.button_Run.Name = "button_Run";
             this.button_Run.Size = new System.Drawing.Size(242, 32);
             this.button_Run.TabIndex = 0;
@@ -156,7 +151,7 @@
             this.groupBox_RunTimeData.Controls.Add(this.container);
             this.groupBox_RunTimeData.Controls.Add(this.label_Epoch);
             this.groupBox_RunTimeData.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.groupBox_RunTimeData.Location = new System.Drawing.Point(3, 175);
+            this.groupBox_RunTimeData.Location = new System.Drawing.Point(3, 138);
             this.groupBox_RunTimeData.Name = "groupBox_RunTimeData";
             this.groupBox_RunTimeData.Size = new System.Drawing.Size(260, 136);
             this.groupBox_RunTimeData.TabIndex = 1;
@@ -282,9 +277,7 @@
             // groupBox_HyperParameters
             // 
             this.groupBox_HyperParameters.Controls.Add(this.panel3);
-            this.groupBox_HyperParameters.Controls.Add(this.label_PointsPerEpoch);
             this.groupBox_HyperParameters.Controls.Add(this.label_SizeOfCanvas);
-            this.groupBox_HyperParameters.Controls.Add(this.panel9);
             this.groupBox_HyperParameters.Controls.Add(this.label_GeneratedPoints);
             this.groupBox_HyperParameters.Controls.Add(this.panel4);
             this.groupBox_HyperParameters.Controls.Add(this.panel2);
@@ -294,7 +287,7 @@
             this.groupBox_HyperParameters.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.groupBox_HyperParameters.Location = new System.Drawing.Point(3, 3);
             this.groupBox_HyperParameters.Name = "groupBox_HyperParameters";
-            this.groupBox_HyperParameters.Size = new System.Drawing.Size(260, 166);
+            this.groupBox_HyperParameters.Size = new System.Drawing.Size(260, 135);
             this.groupBox_HyperParameters.TabIndex = 0;
             this.groupBox_HyperParameters.TabStop = false;
             this.groupBox_HyperParameters.Text = "Hyper Parameters";
@@ -306,7 +299,7 @@
             this.panel3.Controls.Add(this.label_hEquals);
             this.panel3.Controls.Add(this.label_wEquals);
             this.panel3.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Italic, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.panel3.Location = new System.Drawing.Point(111, 133);
+            this.panel3.Location = new System.Drawing.Point(111, 102);
             this.panel3.Name = "panel3";
             this.panel3.Size = new System.Drawing.Size(143, 30);
             this.panel3.TabIndex = 12;
@@ -351,57 +344,15 @@
             this.label_wEquals.TabIndex = 1;
             this.label_wEquals.Text = "w =";
             // 
-            // label_PointsPerEpoch
-            // 
-            this.label_PointsPerEpoch.AutoSize = true;
-            this.label_PointsPerEpoch.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label_PointsPerEpoch.Location = new System.Drawing.Point(6, 110);
-            this.label_PointsPerEpoch.Name = "label_PointsPerEpoch";
-            this.label_PointsPerEpoch.Size = new System.Drawing.Size(92, 13);
-            this.label_PointsPerEpoch.TabIndex = 10;
-            this.label_PointsPerEpoch.Text = "Points Per Epoch:";
-            // 
             // label_SizeOfCanvas
             // 
             this.label_SizeOfCanvas.AutoSize = true;
             this.label_SizeOfCanvas.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label_SizeOfCanvas.Location = new System.Drawing.Point(6, 140);
+            this.label_SizeOfCanvas.Location = new System.Drawing.Point(6, 109);
             this.label_SizeOfCanvas.Name = "label_SizeOfCanvas";
             this.label_SizeOfCanvas.Size = new System.Drawing.Size(81, 13);
             this.label_SizeOfCanvas.TabIndex = 11;
             this.label_SizeOfCanvas.Text = "Size of Canvas:";
-            // 
-            // panel9
-            // 
-            this.panel9.Controls.Add(this.input_e);
-            this.panel9.Controls.Add(this.label_eEquals);
-            this.panel9.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Italic, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.panel9.Location = new System.Drawing.Point(111, 102);
-            this.panel9.Name = "panel9";
-            this.panel9.Size = new System.Drawing.Size(143, 30);
-            this.panel9.TabIndex = 9;
-            // 
-            // input_e
-            // 
-            this.input_e.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.input_e.Location = new System.Drawing.Point(24, 5);
-            this.input_e.Name = "input_e";
-            this.input_e.Size = new System.Drawing.Size(116, 20);
-            this.input_e.TabIndex = 2;
-            this.input_e.Text = "20";
-            this.input_e.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            this.input_e.TextChanged += new System.EventHandler(this.textBox_TextChanged);
-            this.input_e.Leave += new System.EventHandler(this.textBoxDoubleCheck);
-            // 
-            // label_eEquals
-            // 
-            this.label_eEquals.AutoSize = true;
-            this.label_eEquals.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Italic, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label_eEquals.Location = new System.Drawing.Point(3, 7);
-            this.label_eEquals.Name = "label_eEquals";
-            this.label_eEquals.Size = new System.Drawing.Size(22, 13);
-            this.label_eEquals.TabIndex = 1;
-            this.label_eEquals.Text = "e =";
             // 
             // label_GeneratedPoints
             // 
@@ -583,8 +534,6 @@
             this.groupBox_HyperParameters.PerformLayout();
             this.panel3.ResumeLayout(false);
             this.panel3.PerformLayout();
-            this.panel9.ResumeLayout(false);
-            this.panel9.PerformLayout();
             this.panel4.ResumeLayout(false);
             this.panel4.PerformLayout();
             this.panel2.ResumeLayout(false);
@@ -623,10 +572,6 @@
         private System.Windows.Forms.Label label_BiasError;
         private System.Windows.Forms.Button button_Reset;
         private System.Windows.Forms.Button button_Run;
-        private System.Windows.Forms.Label label_PointsPerEpoch;
-        private System.Windows.Forms.Panel panel9;
-        private System.Windows.Forms.TextBox input_e;
-        private System.Windows.Forms.Label label_eEquals;
         private System.Windows.Forms.Label label_NewCalculatedLine;
         private System.Windows.Forms.Panel panel10;
         private System.Windows.Forms.Label output_NewCalculatedLine;

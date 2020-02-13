@@ -74,6 +74,8 @@ namespace PerceptronLearningVisualizer
             {
                 Update();
                 Render();
+                // Check to see if it's converged and stop it if so
+                if (wrong == 0) HandleConvergence();
             }
             catch
             {
@@ -122,54 +124,45 @@ namespace PerceptronLearningVisualizer
             }
 
             // DO UNIQUE ACTIONS FOR OUT OF BOUNDS EVENTS
-            else if (name == "input_r" || name == "input_n" || name == "input_p" || name == "input_e")
+            else if (name == "input_r" || name == "input_p")
             {
-                if ((name == "input_r") && (result > 0.001 || result < 0.0000000001))
+                if ((name == "input_r") && (result > 0.0001 || result < 0.0000000001))
                 {
                     MessageBox.Show("Input out of bounds!\n\n" +
-                        "The learning rate must be between 0.0000000001 and 0.001.",
+                        "The learning rate must be between 0.0000000001 and 0.0001.",
                         "INPUT OUT OF BOUNDS");
                     (sender as TextBox).Text = (sender as TextBox).Text.Remove(0);
                     (sender as TextBox).Focus();
                 }
-                else if ((name == "input_n") && (result > 0.3 || result < 0))
-                {
-                    MessageBox.Show("Input out of bounds!\n\n" +
-                        "The noise level must be between 0 and 0.3.",
-                        "INPUT OUT OF BOUNDS");
-                    (sender as TextBox).Text = (sender as TextBox).Text.Remove(0);
-                    (sender as TextBox).Focus();
-                }
-                else if (name == "input_e" || name == "input_p")
+                else if (name == "input_p")
                 {
                     (sender as TextBox).Text = ((int)Convert.ToDouble((sender as TextBox).Text)).ToString();
                     if (Convert.ToInt32((sender as TextBox).Text) > 250 || Convert.ToInt32((sender as TextBox).Text) <= 0)
                     {
                         MessageBox.Show("Input out of bounds!\n\n" +
-                        "The number of generated points and points per epoch must be between 1 and 250.",
+                        "The number of generated points must be between 1 and 250.",
                         "INPUT OUT OF BOUNDS");
                         (sender as TextBox).Text = (sender as TextBox).Text.Remove(0);
                         (sender as TextBox).Focus();
-                    }
-                    else  if (name == "input_e" && result > Convert.ToDouble(input_p.Text))
-                    {
-                        MessageBox.Show("Points per epoch must be less than or equal to generated points!\n\n",
-                            "PPE <= GP");
-                        (sender as TextBox).Text = (sender as TextBox).Text.Remove(0);
-                        (sender as TextBox).Focus();
-                    }
-                    else if (name == "input_p" && Convert.ToDouble((sender as TextBox).Text) < Convert.ToDouble(input_e.Text))
-                    {
-                        input_e.Text = (sender as TextBox).Text;
                     }
                 }
             }
 
             // CHECK FOR OUT OF BOUNDS
-            else if ((name == "input_w" || name == "input_b") && (result > 25 || result < -25))
+            else if ((name == "input_w") && (result > 25 || result < -25))
             {
                 MessageBox.Show("Input out of bounds!\n\n" +
-                    "The slope and y-intercept must each be between -25 and 25.",
+                    "For simplicity, the slope must each be between -25 and 25.",
+                    "INPUT OUT OF BOUNDS");
+                (sender as TextBox).Text = (sender as TextBox).Text.Remove(0);
+                (sender as TextBox).Focus();
+            }
+
+            // CHECK FOR OUT OF BOUNDS
+            else if ((name == "input_b") && (result > 10 || result < -10))
+            {
+                MessageBox.Show("Input out of bounds!\n\n" +
+                    "For simplicity, the y-intercept must each be between -10 and 10.",
                     "INPUT OUT OF BOUNDS");
                 (sender as TextBox).Text = (sender as TextBox).Text.Remove(0);
                 (sender as TextBox).Focus();
@@ -191,11 +184,11 @@ namespace PerceptronLearningVisualizer
         public double w = 0;    // SLope of the line (weight)
         public double b = 0;    // Y-intercept of the line (bias)
         // Vector of weights where weights[0] is the bias
-        public List<double> weights = new List<double>(3);
-        public double wCalc = 0;// Calculated weight sum
+        public List<double> weights = new List<double>();
+        public double wCalc = 0;// Calculated weight
+        public double bCalc = 0;// Calculated bias
         public double r = 0;    // Leanrning rate
         public int p = 0;       // Number of points generated
-        public int e = 0;       // Number of points to train on per epoch
         public int width = 0;   // User determined width of the canvas
         public int height = 0;  // User determined height of the canvas
 
@@ -252,7 +245,6 @@ namespace PerceptronLearningVisualizer
             b = Convert.ToDouble(input_b.Text);
             r = Convert.ToDouble(input_r.Text);
             p = Convert.ToInt32(input_p.Text);
-            e = Convert.ToInt32(input_e.Text);
             width = Convert.ToInt32(label_width.Text);
             height = Convert.ToInt32(label_height.Text);
         }
@@ -263,7 +255,6 @@ namespace PerceptronLearningVisualizer
             input_b.Enabled = !input_b.Enabled;
             input_p.Enabled = !input_p.Enabled;
             input_r.Enabled = !input_r.Enabled;
-            input_e.Enabled = !input_e.Enabled;
         }
 
         //----------------------------------------------------------------
@@ -290,9 +281,9 @@ namespace PerceptronLearningVisualizer
         public void GenerateValues()
         {
             Random rng = new Random();
-            weights[0] = 0;                 // Initialize bias to 0
-            weights[1] = rng.NextDouble();  // Randomize initial x-weight
-            weights[2] = rng.NextDouble();  // Randomize initial y-weight
+            weights.Add(0);                 // Initialize bias to 0
+            weights.Add(rng.NextDouble());  // Randomize initial x-weight
+            weights.Add(rng.NextDouble());  // Randomize initial y-weight
         }
 
         //----------------------------------------------------------------
@@ -303,11 +294,16 @@ namespace PerceptronLearningVisualizer
         public double CalcY(double x, bool isGroundTruth)
         {
             if (isGroundTruth) return w * x + b;
-            else
-            {
-                // weights[0] = bias, weights[1] = xWeight, weights[2] = yWeight
-                return -1 * (weights[1] * x + weights[0]) / weights[2];
-            }
+            else return wCalc * x + bCalc;
+        }
+
+        public void UpdateLine()
+        {
+            // weights[0] = bias, weights[1] = xWeight, weights[2] = yWeight
+            // This function handles the conversion from ax + by + c = 0
+            // to y = mx + B where m = -a/b and B = -c/b
+            wCalc = -(weights[1] / weights[2]);
+            bCalc = -(weights[0] / weights[2]);
         }
 
         //----------------------------------------------------------------
@@ -323,10 +319,7 @@ namespace PerceptronLearningVisualizer
         // Feedforward function propogates the inputs throughout the network.
         public int feedForward(ref int index)
         {
-            double sum;
-
-            if (index > 0) sum = points[index].Item1 * weights[1] + points[index].Item2 * weights[2];
-            else sum = weights[0];
+            double sum = points[index].Item1 * weights[1] + points[index].Item2 * weights[2];
 
             return activate(sum);
         }
@@ -335,26 +328,24 @@ namespace PerceptronLearningVisualizer
         public void train(ref int i)
         {
             int output = feedForward(ref i);
-            if (i > 0)
+            if (points[i].Item3 != output)
             {
-                if (points[i - 1].Item3 != output)
-                {
-                    ++wrong;
-                    mislabels.Add(i);
-                    System.Diagnostics.Debug.WriteLine("Misclassified Point:\n\tx = " + points[i - 1].Item1 + "\n\ty = " + points[i - 1].Item2
-                        + "\n\tActual = " + points[i - 1].Item3 + "\n\tCalculated = " + output);
-                    WB[i] += r * (points[i - 1].Item3 - output) * points[i - 1].Item1;
-                }
+                ++wrong;
+                mislabels.Add(i);
+                System.Diagnostics.Debug.WriteLine("Misclassified Point:\n\tx = " + points[i].Item1 + "\n\ty = " + points[i].Item2
+                    + "\n\tActual = " + points[i].Item3 + "\n\tCalculated = " + output);
+                weights[0] += r * (points[i].Item3 - output);
+                weights[1] += r * (points[i].Item3 - output) * points[i].Item1;
+                weights[2] += r * (points[i].Item3 - output) * points[i].Item2;
             }
         }
 
-        public void updateW()
+        public void HandleConvergence()
         {
-            wCalc = 0;
-            for (int i = 0; i < points.Count(); ++i)
-            {
-                wCalc += points[i].Item1 * WB[i + 1];
-            }
+            button_PlayPause.PerformClick();
+            button_PlayPause.Enabled = false;
+            MessageBox.Show("The perceptron converged on a solution.\n\nSolution:\n\t" +
+                "y = " + wCalc + "x + " + bCalc, "Convergence Successful");
         }
 
         //----------------------------------------------------------------
@@ -472,21 +463,16 @@ namespace PerceptronLearningVisualizer
             // Update output of base data
             output_Epoch.Text = epoch.ToString();
             output_OldCalculatedLine.Text = "y = " + Math.Round(wCalc, roundTo).ToString()
-                + " * x + " + Math.Round(WB[0], roundTo).ToString(); 
+                + " * x + " + Math.Round(bCalc, roundTo).ToString(); 
 
             // Update calculated weight and bias
-            for (int i = 0; i < WB.Count(); ++i) train(ref i);
+            for (int i = 0; i < points.Count(); ++i) train(ref i);
 
-            // Update wCalc
-            updateW();
-
+            UpdateLine();
             // Update output of the calculated line
             output_NewCalculatedLine.Text = "y = " + Math.Round(wCalc, roundTo).ToString()
-                + " * x + " + Math.Round(WB[0], roundTo).ToString();
+                + " * x + " + Math.Round(bCalc, roundTo).ToString();
             output_NumMisclassified.Text = wrong.ToString();
-
-            // Check to see if it's converged and stop it if so
-            if (wrong == 0) button_PlayPause.PerformClick();
         }
 
         public void Render()
