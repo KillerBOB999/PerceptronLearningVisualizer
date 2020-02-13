@@ -54,7 +54,7 @@ namespace PerceptronLearningVisualizer
                 bitmap.Dispose();
             }
             points.Clear();
-            WB.Clear();
+            weights.Clear();
             button_Reset.Enabled = false;
             using (Graphics graphics = splitContainer1.Panel2.CreateGraphics())
             {
@@ -190,7 +190,8 @@ namespace PerceptronLearningVisualizer
 
         public double w = 0;    // SLope of the line (weight)
         public double b = 0;    // Y-intercept of the line (bias)
-        public List<double> WB = new List<double>();// Calculated weights and bias
+        // Vector of weights where weights[0] is the bias
+        public List<double> weights = new List<double>(3);
         public double wCalc = 0;// Calculated weight sum
         public double r = 0;    // Leanrning rate
         public int p = 0;       // Number of points generated
@@ -289,11 +290,9 @@ namespace PerceptronLearningVisualizer
         public void GenerateValues()
         {
             Random rng = new Random();
-            WB.Add(0); // Initialize the bias to 0
-            foreach (var point in points)
-            {
-                WB.Add(rng.NextDouble());
-            }
+            weights[0] = 0;                 // Initialize bias to 0
+            weights[1] = rng.NextDouble();  // Randomize initial x-weight
+            weights[2] = rng.NextDouble();  // Randomize initial y-weight
         }
 
         //----------------------------------------------------------------
@@ -306,7 +305,8 @@ namespace PerceptronLearningVisualizer
             if (isGroundTruth) return w * x + b;
             else
             {
-                return wCalc * x + WB[0];
+                // weights[0] = bias, weights[1] = xWeight, weights[2] = yWeight
+                return -1 * (weights[1] * x + weights[0]) / weights[2];
             }
         }
 
@@ -325,8 +325,8 @@ namespace PerceptronLearningVisualizer
         {
             double sum;
 
-            if (index > 0) sum = points[index - 1].Item1 * WB[index];
-            else sum = WB[0];
+            if (index > 0) sum = points[index].Item1 * weights[1] + points[index].Item2 * weights[2];
+            else sum = weights[0];
 
             return activate(sum);
         }
