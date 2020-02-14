@@ -64,6 +64,9 @@ namespace PerceptronLearningVisualizer
             button_PlayPause.Enabled = false;
             button_PlayPause.Text = "Pause Simulation";
             output_NumMisclassified.Text = "N/A";
+            output_Epoch.Text = "N/A";
+            output_NewCalculatedLine.Text = "N/A";
+            output_OldCalculatedLine.Text = "N/A";
             button_Run.Enabled = true;
         }
 
